@@ -1,115 +1,115 @@
-# Task Management REST API
+# タスク管理 REST API
 
-A modern, well-structured PHP REST API for task management with advanced features.
+モダンで高度な機能を持つ、実用的なPHPタスク管理REST APIです。
 
-## Features
+## 主な機能
 
-- **RESTful API Design**: Clean, intuitive endpoints following REST best practices
-- **Domain-Driven Design**: Rich domain models with business logic encapsulation
-- **Immutable Entities**: Task entities are immutable for better predictability
-- **Repository Pattern**: Clean separation between domain and data access layers
-- **Service Layer**: Business logic encapsulation with dependency injection
-- **Validation**: Comprehensive input validation with detailed error messages
-- **State Machine**: Task status transitions with validation
-- **Rate Limiting**: Built-in rate limiting middleware (100 requests/hour)
-- **CORS Support**: Cross-Origin Resource Sharing enabled
-- **Tag System**: Flexible tagging for task organization
-- **Advanced Filtering**: Filter by status, tag, overdue status
-- **Statistics**: Comprehensive task statistics endpoint
-- **Unit & Integration Tests**: Full test coverage with PHPUnit
-- **Static Analysis**: PHPStan level 8 for maximum type safety
-- **PSR Standards**: Following PSR-4 (autoloading), PSR-12 (coding style)
+- **RESTful API設計**: RESTのベストプラクティスに従った直感的なエンドポイント
+- **ドメイン駆動設計**: ビジネスロジックをカプセル化したリッチドメインモデル
+- **イミュータブルエンティティ**: 予測可能性を高めるイミュータブルなTaskエンティティ
+- **リポジトリパターン**: ドメイン層とデータアクセス層の明確な分離
+- **サービス層**: 依存性注入によるビジネスロジックのカプセル化
+- **バリデーション**: 詳細なエラーメッセージを伴う包括的な入力検証
+- **ステートマシン**: 検証付きタスクステータス遷移
+- **レート制限**: 組み込みレート制限ミドルウェア（100リクエスト/時間）
+- **CORS対応**: クロスオリジンリソース共有の有効化
+- **タグシステム**: タスク整理のための柔軟なタグ付け
+- **高度なフィルタリング**: ステータス、タグ、期限切れによるフィルタリング
+- **統計情報**: 包括的なタスク統計エンドポイント
+- **ユニット・統合テスト**: PHPUnitによる完全なテストカバレッジ
+- **静的解析**: 最大限の型安全性のためのPHPStan level 8
+- **PSR標準**: PSR-4（オートローディング）、PSR-12（コーディングスタイル）に準拠
 
-## Architecture
+## アーキテクチャ
 
 ```
 src/
-├── Controller/      # HTTP request handling
-├── Service/         # Business logic layer
-├── Repository/      # Data persistence layer
-├── Model/           # Domain entities
-├── DTO/             # Data Transfer Objects
-├── Validator/       # Input validation
-├── Middleware/      # HTTP middleware
-└── Exception/       # Custom exceptions
+├── Controller/      # HTTPリクエスト処理
+├── Service/         # ビジネスロジック層
+├── Repository/      # データ永続化層
+├── Model/           # ドメインエンティティ
+├── DTO/             # データ転送オブジェクト
+├── Validator/       # 入力バリデーション
+├── Middleware/      # HTTPミドルウェア
+└── Exception/       # カスタム例外
 ```
 
-## Requirements
+## 必要環境
 
-- PHP 8.1 or higher
-- PDO extension
-- JSON extension
-- Composer (for dependencies)
+- PHP 8.1以上
+- PDO拡張
+- JSON拡張
+- Composer（依存関係管理用）
 
-## Installation
+## インストール
 
 ```bash
-# Install dependencies
+# 依存関係のインストール
 composer install
 
-# Run tests
+# テストの実行
 composer test
 
-# Run static analysis
+# 静的解析の実行
 composer analyse
 ```
 
-## Quick Start
+## クイックスタート
 
 ```bash
-# Start built-in PHP server
+# PHPビルトインサーバーの起動
 php -S localhost:8000 -t public
 
-# Or using PHP built-in server with routing
+# または、ルーティング付きでの起動
 cd public && php -S localhost:8000
 ```
 
-## API Endpoints
+## APIエンドポイント
 
-### Task Management
+### タスク管理
 
-- `GET /api/tasks` - List all tasks (supports pagination)
-  - Query parameters: `?limit=N&offset=N`
-- `GET /api/tasks/{id}` - Get task by ID
-- `POST /api/tasks` - Create new task
-- `PUT /api/tasks/{id}` - Update task
-- `DELETE /api/tasks/{id}` - Delete task
+- `GET /api/tasks` - タスク一覧取得（ページネーション対応）
+  - クエリパラメータ: `?limit=N&offset=N`
+- `GET /api/tasks/{id}` - IDによるタスク取得
+- `POST /api/tasks` - 新規タスク作成
+- `PUT /api/tasks/{id}` - タスク更新
+- `DELETE /api/tasks/{id}` - タスク削除
 
-### Filtering & Statistics
+### フィルタリング・統計
 
-- `GET /api/statistics` - Get task statistics
-- `GET /api/tasks/overdue/list` - Get overdue tasks
-- `GET /api/tasks/status/{status}` - Get tasks by status
-  - Valid statuses: `pending`, `in_progress`, `completed`, `cancelled`
-- `GET /api/tasks/tag/{tag}` - Get tasks by tag
+- `GET /api/statistics` - タスク統計情報取得
+- `GET /api/tasks/overdue/list` - 期限切れタスク取得
+- `GET /api/tasks/status/{status}` - ステータスによるタスク取得
+  - 有効なステータス: `pending`, `in_progress`, `completed`, `cancelled`
+- `GET /api/tasks/tag/{tag}` - タグによるタスク取得
 
-### Tag Management
+### タグ管理
 
-- `POST /api/tasks/{id}/tags` - Add tags to task
-- `DELETE /api/tasks/{id}/tags/{tag}` - Remove tag from task
+- `POST /api/tasks/{id}/tags` - タスクへのタグ追加
+- `DELETE /api/tasks/{id}/tags/{tag}` - タスクからタグ削除
 
-### System
+### システム
 
-- `GET /api/health` - Health check endpoint
-- `GET /` - API documentation
+- `GET /api/health` - ヘルスチェックエンドポイント
+- `GET /` - APIドキュメント
 
-## Usage Examples
+## 使用例
 
-### Create a Task
+### タスクの作成
 
 ```bash
 curl -X POST http://localhost:8000/api/tasks \
   -H "Content-Type: application/json" \
   -d '{
-    "title": "Implement user authentication",
-    "description": "Add JWT-based authentication to the API",
+    "title": "ユーザー認証の実装",
+    "description": "APIにJWTベースの認証を追加",
     "priority": "high",
     "due_date": "2024-12-31 23:59:59",
     "tags": ["backend", "security"]
   }'
 ```
 
-### Update Task Status
+### タスクステータスの更新
 
 ```bash
 curl -X PUT http://localhost:8000/api/tasks/1 \
@@ -119,111 +119,111 @@ curl -X PUT http://localhost:8000/api/tasks/1 \
   }'
 ```
 
-### Get Statistics
+### 統計情報の取得
 
 ```bash
 curl http://localhost:8000/api/statistics
 ```
 
-### Filter by Status
+### ステータスによるフィルタリング
 
 ```bash
 curl http://localhost:8000/api/tasks/status/pending
 ```
 
-## Task Properties
+## タスクのプロパティ
 
-### Status Values
-- `pending` - Initial state
-- `in_progress` - Task is being worked on
-- `completed` - Task is finished
-- `cancelled` - Task is cancelled
+### ステータス値
+- `pending` - 初期状態
+- `in_progress` - 作業中
+- `completed` - 完了
+- `cancelled` - キャンセル済み
 
-### Priority Levels
-- `low` - Low priority
-- `medium` - Medium priority (default)
-- `high` - High priority
-- `urgent` - Urgent priority
+### 優先度レベル
+- `low` - 低優先度
+- `medium` - 中優先度（デフォルト）
+- `high` - 高優先度
+- `urgent` - 緊急
 
-### Status Transitions
+### ステータス遷移
 
 ```
 pending → in_progress, cancelled
 in_progress → completed, cancelled, pending
-completed → (final state)
+completed → (最終状態)
 cancelled → pending
 ```
 
-## Testing
+## テスト
 
 ```bash
-# Run all tests
+# 全テストの実行
 composer test
 
-# Run specific test suite
+# 特定のテストスイートの実行
 vendor/bin/phpunit tests/Unit
 vendor/bin/phpunit tests/Integration
 
-# Run with coverage (requires Xdebug)
+# カバレッジ付き実行（Xdebugが必要）
 vendor/bin/phpunit --coverage-html coverage
 ```
 
-## Static Analysis
+## 静的解析
 
 ```bash
-# Run PHPStan
+# PHPStanの実行
 composer analyse
 
-# Or directly
+# または直接実行
 vendor/bin/phpstan analyse
 ```
 
-## Design Patterns Used
+## 使用されているデザインパターン
 
-1. **Repository Pattern** - Data access abstraction
-2. **Service Layer Pattern** - Business logic encapsulation
-3. **Factory Pattern** - Task creation
-4. **Dependency Injection** - Loose coupling
-5. **Immutable Objects** - Predictable state management
-6. **DTO Pattern** - Data transfer between layers
-7. **Middleware Pattern** - Request/response processing
-8. **State Machine** - Task status management
+1. **リポジトリパターン** - データアクセスの抽象化
+2. **サービス層パターン** - ビジネスロジックのカプセル化
+3. **ファクトリーパターン** - タスクの生成
+4. **依存性注入** - 疎結合の実現
+5. **イミュータブルオブジェクト** - 予測可能な状態管理
+6. **DTOパターン** - レイヤー間のデータ転送
+7. **ミドルウェアパターン** - リクエスト/レスポンス処理
+8. **ステートマシン** - タスクステータス管理
 
-## Key Technical Highlights
+## 主な技術的特徴
 
-### 1. Immutable Domain Models
-Tasks are immutable - any modification creates a new instance, ensuring predictable behavior and easier testing.
+### 1. イミュータブルドメインモデル
+タスクはイミュータブルです。すべての変更は新しいインスタンスを作成するため、予測可能な動作とテストの容易性を実現しています。
 
-### 2. Type Safety
-- Strict types enabled (`declare(strict_types=1)`)
-- PHPStan level 8 compliance
-- Full type hints on all methods
-- Readonly properties on DTOs
+### 2. 型安全性
+- 厳格な型宣言を有効化（`declare(strict_types=1)`）
+- PHPStan level 8準拠
+- すべてのメソッドに完全な型ヒント
+- DTOにreadonly プロパティを使用
 
-### 3. Error Handling
-- Custom exception hierarchy
-- Proper HTTP status codes
-- Detailed error messages
-- Transaction management
+### 3. エラーハンドリング
+- カスタム例外階層
+- 適切なHTTPステータスコード
+- 詳細なエラーメッセージ
+- トランザクション管理
 
-### 4. Database Design
-- Normalized schema
-- Proper indexes for performance
-- Foreign key constraints
-- Support for SQLite and MySQL
+### 4. データベース設計
+- 正規化されたスキーマ
+- パフォーマンスのための適切なインデックス
+- 外部キー制約
+- SQLiteとMySQLのサポート
 
-### 5. Testability
-- Dependency injection throughout
-- Interface-based design where appropriate
-- In-memory SQLite for integration tests
-- Comprehensive test coverage
+### 5. テスタビリティ
+- 全体的な依存性注入
+- 適切なインターフェースベースの設計
+- 統合テスト用のインメモリSQLite
+- 包括的なテストカバレッジ
 
-## Configuration
+## 設定
 
-Database configuration can be customized via environment variables:
+データベース設定は環境変数でカスタマイズできます：
 
 ```bash
-DB_DRIVER=sqlite       # or mysql
+DB_DRIVER=sqlite       # または mysql
 DB_HOST=localhost
 DB_PORT=3306
 DB_DATABASE=tasks
@@ -231,22 +231,39 @@ DB_USERNAME=root
 DB_PASSWORD=secret
 ```
 
-## Security Features
+## セキュリティ機能
 
-- Input validation at multiple layers
-- Rate limiting to prevent abuse
-- Prepared statements to prevent SQL injection
-- Type-safe parameter handling
-- No sensitive data in error messages (production mode)
+- 複数層での入力検証
+- 悪用防止のレート制限
+- SQLインジェクション防止のプリペアドステートメント
+- 型安全なパラメータハンドリング
+- 本番モードでのエラーメッセージからの機密データ除外
 
-## Performance Considerations
+## パフォーマンスの考慮事項
 
-- Database indexes on frequently queried columns
-- Efficient pagination support
-- Optimized autoloader configuration
-- Connection pooling support
-- Lazy loading of dependencies
+- 頻繁にクエリされるカラムへのデータベースインデックス
+- 効率的なページネーションサポート
+- 最適化されたオートローダー設定
+- コネクションプーリングサポート
+- 依存関係の遅延ロード
 
-## License
+## デモの実行
+
+プロジェクトには実際の動作を確認できるデモスクリプトが含まれています：
+
+```bash
+php demo.php
+```
+
+このデモでは以下を確認できます：
+- タスクの作成
+- ステータスの更新
+- タグの追加
+- フィルタリング
+- 統計情報
+- バリデーション
+- イミュータビリティ
+
+## ライセンス
 
 MIT License
