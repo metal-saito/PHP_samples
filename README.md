@@ -1,71 +1,252 @@
-# PHP & Laravel Samples
+# Task Management REST API
 
-このリポジトリは、予約管理システムを題材にした PHP と Laravel の技術サンプル集です。  
-1 ディレクトリ 1 トピックの構成
+A modern, well-structured PHP REST API for task management with advanced features.
 
-## サンプル一覧
+## Features
 
-| ディレクトリ | テーマ | 主な技術要素 |
-| --- | --- | --- |
-| `samples/01_rest_api` | Laravel RESTful API | Eloquent ORM / マイグレーション / API リソース / バリデーション |
-| `samples/02_job_queue` | 非同期ジョブ処理 | ジョブキュー / イベントリスナー / 失敗処理 / リトライ |
-| `samples/03_middleware` | カスタムミドルウェア | 認証 / ロギング / レート制限 / レスポンス変換 |
+- **RESTful API Design**: Clean, intuitive endpoints following REST best practices
+- **Domain-Driven Design**: Rich domain models with business logic encapsulation
+- **Immutable Entities**: Task entities are immutable for better predictability
+- **Repository Pattern**: Clean separation between domain and data access layers
+- **Service Layer**: Business logic encapsulation with dependency injection
+- **Validation**: Comprehensive input validation with detailed error messages
+- **State Machine**: Task status transitions with validation
+- **Rate Limiting**: Built-in rate limiting middleware (100 requests/hour)
+- **CORS Support**: Cross-Origin Resource Sharing enabled
+- **Tag System**: Flexible tagging for task organization
+- **Advanced Filtering**: Filter by status, tag, overdue status
+- **Statistics**: Comprehensive task statistics endpoint
+- **Unit & Integration Tests**: Full test coverage with PHPUnit
+- **Static Analysis**: PHPStan level 8 for maximum type safety
+- **PSR Standards**: Following PSR-4 (autoloading), PSR-12 (coding style)
 
-## ルート PHP サンプル
+## Architecture
 
-`app/` ディレクトリには Laravel とは独立した純 PHP 実装のドメインレイヤーを配置しています。予約作成・重複検知・ビジネスポリシー検証を担う `ReservationService` を中心に、以下の設計を導入しました。
+```
+src/
+├── Controller/      # HTTP request handling
+├── Service/         # Business logic layer
+├── Repository/      # Data persistence layer
+├── Model/           # Domain entities
+├── DTO/             # Data Transfer Objects
+├── Validator/       # Input validation
+├── Middleware/      # HTTP middleware
+└── Exception/       # Custom exceptions
+```
 
-- `TimeSlot` / `Reservation` といった値オブジェクト・集約の作成
-- `ReservationPolicy` によるビジネスルール（最大利用時間・15分刻み・未来日のみ等）のカプセル化
-- `ReservationRepositoryInterface` でデータソースを抽象化（`InMemoryReservationRepository` を同梱）
-- `Clock` インターフェースでテスト時に時間を固定化
+## Requirements
 
-整合性とテスト容易性を意識した構成のため、Laravel サンプルとは別に PHP の設計力をアピールできます。
+- PHP 8.1 or higher
+- PDO extension
+- JSON extension
+- Composer (for dependencies)
 
-### 実行方法
+## Installation
 
 ```bash
-cd PHP_samples
+# Install dependencies
 composer install
-composer test       # PHPUnit
-composer analyse    # PHPStan
+
+# Run tests
+composer test
+
+# Run static analysis
+composer analyse
 ```
 
-### ReservationService の利用例
+## Quick Start
 
-```php
-$service = new App\ReservationService();
+```bash
+# Start built-in PHP server
+php -S localhost:8000 -t public
 
-$reservation = $service->createReservation([
-    'user_name'     => 'Alice',
-    'resource_name' => 'Room-A',
-    'starts_at'     => '2025-01-02T09:00:00Z',
-    'ends_at'       => '2025-01-02T10:00:00Z',
-]);
+# Or using PHP built-in server with routing
+cd public && php -S localhost:8000
 ```
 
-`listReservations()` を呼び出すと内部に保存された予約一覧を取得できます。別データソースと連携したい場合は `ReservationRepositoryInterface` を実装するだけで切り替え可能です。
+## API Endpoints
 
-## 推奨バージョン
+### Task Management
 
-- PHP 8.2 以上
-- Laravel 10.x 以上
-- Composer 2.x 以上
+- `GET /api/tasks` - List all tasks (supports pagination)
+  - Query parameters: `?limit=N&offset=N`
+- `GET /api/tasks/{id}` - Get task by ID
+- `POST /api/tasks` - Create new task
+- `PUT /api/tasks/{id}` - Update task
+- `DELETE /api/tasks/{id}` - Delete task
 
-## 使い方
+### Filtering & Statistics
 
-1. 各サンプルディレクトリに移動します。
-2. `composer install` で依存関係を取得します。
-3. `.env` ファイルを設定します（必要に応じて）。
-4. `php artisan migrate` でデータベースをセットアップします。
-5. `README.md` の手順に従ってアプリケーションまたはテストを実行します。
+- `GET /api/statistics` - Get task statistics
+- `GET /api/tasks/overdue/list` - Get overdue tasks
+- `GET /api/tasks/status/{status}` - Get tasks by status
+  - Valid statuses: `pending`, `in_progress`, `completed`, `cancelled`
+- `GET /api/tasks/tag/{tag}` - Get tasks by tag
 
-## プロジェクトの観点
+### Tag Management
 
-- ドキュメントで設計判断とテスト範囲を明記し、エンジニアリング判断力を示す
-- 各ディレクトリで異なる Laravel の機能（API / ジョブ / ミドルウェア）をカバー
-- Eloquent ORM、マイグレーション、テストなど、実務で使われる機能を実装
-- バリデーション、エラーハンドリング、セキュリティ対策など、実践的な実装を配置
-- ルート PHP コードではユースケース／ドメイン層とテスト容易性を重視した構成を採用
+- `POST /api/tasks/{id}/tags` - Add tags to task
+- `DELETE /api/tasks/{id}/tags/{tag}` - Remove tag from task
 
+### System
 
+- `GET /api/health` - Health check endpoint
+- `GET /` - API documentation
+
+## Usage Examples
+
+### Create a Task
+
+```bash
+curl -X POST http://localhost:8000/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Implement user authentication",
+    "description": "Add JWT-based authentication to the API",
+    "priority": "high",
+    "due_date": "2024-12-31 23:59:59",
+    "tags": ["backend", "security"]
+  }'
+```
+
+### Update Task Status
+
+```bash
+curl -X PUT http://localhost:8000/api/tasks/1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "in_progress"
+  }'
+```
+
+### Get Statistics
+
+```bash
+curl http://localhost:8000/api/statistics
+```
+
+### Filter by Status
+
+```bash
+curl http://localhost:8000/api/tasks/status/pending
+```
+
+## Task Properties
+
+### Status Values
+- `pending` - Initial state
+- `in_progress` - Task is being worked on
+- `completed` - Task is finished
+- `cancelled` - Task is cancelled
+
+### Priority Levels
+- `low` - Low priority
+- `medium` - Medium priority (default)
+- `high` - High priority
+- `urgent` - Urgent priority
+
+### Status Transitions
+
+```
+pending → in_progress, cancelled
+in_progress → completed, cancelled, pending
+completed → (final state)
+cancelled → pending
+```
+
+## Testing
+
+```bash
+# Run all tests
+composer test
+
+# Run specific test suite
+vendor/bin/phpunit tests/Unit
+vendor/bin/phpunit tests/Integration
+
+# Run with coverage (requires Xdebug)
+vendor/bin/phpunit --coverage-html coverage
+```
+
+## Static Analysis
+
+```bash
+# Run PHPStan
+composer analyse
+
+# Or directly
+vendor/bin/phpstan analyse
+```
+
+## Design Patterns Used
+
+1. **Repository Pattern** - Data access abstraction
+2. **Service Layer Pattern** - Business logic encapsulation
+3. **Factory Pattern** - Task creation
+4. **Dependency Injection** - Loose coupling
+5. **Immutable Objects** - Predictable state management
+6. **DTO Pattern** - Data transfer between layers
+7. **Middleware Pattern** - Request/response processing
+8. **State Machine** - Task status management
+
+## Key Technical Highlights
+
+### 1. Immutable Domain Models
+Tasks are immutable - any modification creates a new instance, ensuring predictable behavior and easier testing.
+
+### 2. Type Safety
+- Strict types enabled (`declare(strict_types=1)`)
+- PHPStan level 8 compliance
+- Full type hints on all methods
+- Readonly properties on DTOs
+
+### 3. Error Handling
+- Custom exception hierarchy
+- Proper HTTP status codes
+- Detailed error messages
+- Transaction management
+
+### 4. Database Design
+- Normalized schema
+- Proper indexes for performance
+- Foreign key constraints
+- Support for SQLite and MySQL
+
+### 5. Testability
+- Dependency injection throughout
+- Interface-based design where appropriate
+- In-memory SQLite for integration tests
+- Comprehensive test coverage
+
+## Configuration
+
+Database configuration can be customized via environment variables:
+
+```bash
+DB_DRIVER=sqlite       # or mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=tasks
+DB_USERNAME=root
+DB_PASSWORD=secret
+```
+
+## Security Features
+
+- Input validation at multiple layers
+- Rate limiting to prevent abuse
+- Prepared statements to prevent SQL injection
+- Type-safe parameter handling
+- No sensitive data in error messages (production mode)
+
+## Performance Considerations
+
+- Database indexes on frequently queried columns
+- Efficient pagination support
+- Optimized autoloader configuration
+- Connection pooling support
+- Lazy loading of dependencies
+
+## License
+
+MIT License
