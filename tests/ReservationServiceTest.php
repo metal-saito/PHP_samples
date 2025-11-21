@@ -1,33 +1,77 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
+use App\Domain\Reservation\InMemoryReservationRepository;
+use App\Domain\Reservation\ReservationPolicy;
 use App\ReservationService;
+use App\Support\Clock\FrozenClock;
+use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
-class ReservationServiceTest extends TestCase
+final class ReservationServiceTest extends TestCase
 {
     private ReservationService $service;
 
     protected function setUp(): void
     {
-        $this->service = new ReservationService();
+        $clock = new FrozenClock(new DateTimeImmutable('2025-01-01T09:00:00Z'));
+        $this->service = new ReservationService(
+            new InMemoryReservationRepository(),
+            new ReservationPolicy(),
+            $clock
+        );
     }
 
-    public function testCreateReservation(): void
+    public function testCreateReservationPersistsEntity(): void
     {
-        $data = [
-            'user_name' => 'Alice',
+        $result = $this->service->createReservation([
+            'user_name'     => 'Alice',
             'resource_name' => 'Room-A',
-            'starts_at' => '2025-01-02T09:00:00Z',
-            'ends_at' => '2025-01-02T10:00:00Z',
+            'starts_at'     => '2025-01-01T10:00:00Z',
+            'ends_at'       => '2025-01-01T11:00:00Z',
+        ]);
+
+        self::assertSame('Alice', $result['user_name']);
+        self::assertSame('Room-A', $result['resource_name']);
+        self::assertSame('booked', $result['status']);
+        self::assertArrayHasKey('id', $result);
+
+        $reservations = $this->service->listReservations();
+        self::assertCount(1, $reservations);
+    }
+
+    public function testOverlappingReservationThrowsException(): void
+    {
+        $payload = [
+            'user_name'     => 'Alice',
+            'resource_name' => 'Room-A',
+            'starts_at'     => '2025-01-01T10:00:00Z',
+            'ends_at'       => '2025-01-01T11:00:00Z',
         ];
+        $this->service->createReservation($payload);
 
-        $result = $this->service->createReservation($data);
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Time slot overlaps');
+        $this->service->createReservation([
+            'user_name'     => 'Bob',
+            'resource_name' => 'Room-A',
+            'starts_at'     => '2025-01-01T10:30:00Z',
+            'ends_at'       => '2025-01-01T11:30:00Z',
+        ]);
+    }
 
-        $this->assertArrayHasKey('id', $result);
-        $this->assertEquals('Alice', $result['user_name']);
-        $this->assertEquals('booked', $result['status']);
+    public function testPolicyRejectsInvalidDuration(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->service->createReservation([
+            'user_name'     => 'Alice',
+            'resource_name' => 'Room-A',
+            'starts_at'     => '2025-01-02T10:00:00Z',
+            'ends_at'       => '2025-01-02T16:30:00Z',
+        ]);
     }
 }
-

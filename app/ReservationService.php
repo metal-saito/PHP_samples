@@ -1,67 +1,94 @@
 <?php
 
-/**
- * Reservation Service
- * 
- * Example service class demonstrating PHP OOP patterns
- */
+declare(strict_types=1);
 
 namespace App;
 
-class ReservationService
+use App\Domain\Reservation\InMemoryReservationRepository;
+use App\Domain\Reservation\Reservation;
+use App\Domain\Reservation\ReservationPolicy;
+use App\Domain\Reservation\ReservationRepositoryInterface;
+use App\Domain\Reservation\TimeSlot;
+use App\Support\Clock\Clock;
+use App\Support\Clock\SystemClock;
+use Ramsey\Uuid\Uuid;
+use RuntimeException;
+
+final class ReservationService
 {
-    /**
-     * 予約を作成
-     */
-    public function createReservation(array $data): array
-    {
-        // バリデーション
-        $this->validateReservationData($data);
-
-        // 重複チェック
-        if ($this->hasOverlappingReservation($data)) {
-            throw new \InvalidArgumentException('Time slot overlaps with existing reservation');
-        }
-
-        // 予約作成処理
-        return [
-            'id' => $this->generateId(),
-            'user_name' => $data['user_name'],
-            'resource_name' => $data['resource_name'],
-            'starts_at' => $data['starts_at'],
-            'ends_at' => $data['ends_at'],
-            'status' => 'booked',
-        ];
+    public function __construct(
+        private ReservationRepositoryInterface $reservations = new InMemoryReservationRepository(),
+        private ReservationPolicy $policy = new ReservationPolicy(),
+        private Clock $clock = new SystemClock()
+    ) {
     }
 
     /**
-     * バリデーション
+     * @param array<string, mixed> $data
+     * @return array<string, mixed>
      */
-    private function validateReservationData(array $data): void
+    public function createReservation(array $data): array
+    {
+        $payload = $this->sanitize($data);
+        $this->assertRequired($payload);
+
+        $timeSlot = TimeSlot::fromIso8601($payload['starts_at'], $payload['ends_at']);
+        $now = $this->clock->now();
+        $this->policy->assertAcceptable($timeSlot, $now);
+
+        $overlaps = $this->reservations->findOverlapping($payload['resource_name'], $timeSlot);
+        if ($overlaps !== []) {
+            throw new RuntimeException('Time slot overlaps with existing reservation');
+        }
+
+        $reservation = Reservation::book(
+            Uuid::uuid7()->toString(),
+            $payload['user_name'],
+            $payload['resource_name'],
+            $timeSlot,
+            $now
+        );
+
+        $this->reservations->save($reservation);
+
+        return $reservation->toArray();
+    }
+
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function listReservations(): array
+    {
+        return array_map(
+            static fn (Reservation $reservation): array => $reservation->toArray(),
+            $this->reservations->all()
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function assertRequired(array $payload): void
     {
         $required = ['user_name', 'resource_name', 'starts_at', 'ends_at'];
         foreach ($required as $field) {
-            if (empty($data[$field])) {
-                throw new \InvalidArgumentException("{$field} is required");
+            if (empty($payload[$field])) {
+                throw new RuntimeException("{$field} is required");
             }
         }
     }
 
     /**
-     * 重複チェック
+     * @param array<string, mixed> $input
+     * @return array<string, mixed>
      */
-    private function hasOverlappingReservation(array $data): bool
+    private function sanitize(array $input): array
     {
-        // 実装例（実際の実装ではデータベースをチェック）
-        return false;
-    }
+        $sanitized = [];
+        foreach ($input as $key => $value) {
+            $sanitized[$key] = is_string($value) ? trim($value) : $value;
+        }
 
-    /**
-     * ID生成
-     */
-    private function generateId(): string
-    {
-        return 'RES-' . str_pad((string)rand(1, 9999), 4, '0', STR_PAD_LEFT);
+        return $sanitized;
     }
 }
-
