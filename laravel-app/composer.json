@@ -1,8 +1,8 @@
 {
-    "name": "laravel/laravel",
+    "name": "metal-saito/laravel-task-api",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Laravel 10 Task Management REST API - A comprehensive task management system with authentication, CRUD operations, and advanced features",
+    "keywords": ["laravel", "framework", "rest-api", "task-management", "sanctum", "php8"],
     "license": "MIT",
     "require": {
         "php": "^8.1",

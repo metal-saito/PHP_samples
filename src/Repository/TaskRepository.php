@@ -59,6 +59,9 @@ final class TaskRepository
         }
     }
 
+    /**
+     * @return array<Task>
+     */
     public function findAll(int $limit = 100, int $offset = 0): array
     {
         try {
@@ -82,6 +85,9 @@ final class TaskRepository
         }
     }
 
+    /**
+     * @return array<Task>
+     */
     public function findByStatus(string $status, int $limit = 100): array
     {
         try {
@@ -106,6 +112,9 @@ final class TaskRepository
         }
     }
 
+    /**
+     * @return array<Task>
+     */
     public function findByTag(string $tag, int $limit = 100): array
     {
         try {
@@ -130,6 +139,9 @@ final class TaskRepository
         }
     }
 
+    /**
+     * @return array<Task>
+     */
     public function findOverdue(): array
     {
         try {
@@ -185,7 +197,11 @@ final class TaskRepository
     {
         try {
             $stmt = $this->pdo->query('SELECT COUNT(*) FROM tasks');
-            return (int) $stmt->fetchColumn();
+            if ($stmt === false) {
+                throw new DatabaseException('Failed to execute count query');
+            }
+            $result = $stmt->fetchColumn();
+            return $result !== false ? (int) $result : 0;
         } catch (PDOException $e) {
             throw new DatabaseException('Failed to count tasks: ' . $e->getMessage(), 0, $e);
         }
@@ -287,10 +303,15 @@ final class TaskRepository
             }
 
             // Update tags
+            $taskId = $task->getId();
+            if ($taskId === null) {
+                throw new DatabaseException('Cannot update tags for task without ID');
+            }
+            
             $deleteStmt = $this->pdo->prepare('DELETE FROM task_tags WHERE task_id = ?');
-            $deleteStmt->execute([$task->getId()]);
+            $deleteStmt->execute([$taskId]);
 
-            $this->saveTags($task->getId(), $task->getTags());
+            $this->saveTags($taskId, $task->getTags());
 
             $this->pdo->commit();
 
@@ -301,6 +322,9 @@ final class TaskRepository
         }
     }
 
+    /**
+     * @param array<string> $tags
+     */
     private function saveTags(int $taskId, array $tags): void
     {
         if (empty($tags)) {
@@ -314,6 +338,9 @@ final class TaskRepository
         }
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function hydrate(array $data): Task
     {
         $tags = !empty($data['tags']) ? explode(',', $data['tags']) : [];

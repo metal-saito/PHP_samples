@@ -19,6 +19,9 @@ final class TaskController
     {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function index(): array
     {
         $limit = (int) ($_GET['limit'] ?? 100);
@@ -37,6 +40,9 @@ final class TaskController
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function show(int $id): array
     {
         try {
@@ -55,10 +61,22 @@ final class TaskController
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function store(): array
     {
         try {
-            $data = json_decode(file_get_contents('php://input'), true);
+            $input = file_get_contents('php://input');
+            if ($input === false) {
+                http_response_code(400);
+                return [
+                    'status' => 'error',
+                    'message' => 'Failed to read input',
+                ];
+            }
+            
+            $data = json_decode($input, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
                 http_response_code(400);
@@ -86,10 +104,22 @@ final class TaskController
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function update(int $id): array
     {
         try {
-            $data = json_decode(file_get_contents('php://input'), true);
+            $input = file_get_contents('php://input');
+            if ($input === false) {
+                http_response_code(400);
+                return [
+                    'status' => 'error',
+                    'message' => 'Failed to read input',
+                ];
+            }
+            
+            $data = json_decode($input, true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
                 http_response_code(400);
@@ -122,6 +152,9 @@ final class TaskController
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function destroy(int $id): array
     {
         try {
@@ -141,6 +174,9 @@ final class TaskController
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function statistics(): array
     {
         $stats = $this->service->getStatistics();
@@ -151,6 +187,9 @@ final class TaskController
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function overdue(): array
     {
         $tasks = $this->service->getOverdueTasks();
@@ -164,6 +203,9 @@ final class TaskController
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function byStatus(string $status): array
     {
         $tasks = $this->service->getTasksByStatus($status);
@@ -178,6 +220,9 @@ final class TaskController
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function byTag(string $tag): array
     {
         $tasks = $this->service->getTasksByTag($tag);
@@ -192,10 +237,22 @@ final class TaskController
         ];
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function addTags(int $id): array
     {
         try {
-            $data = json_decode(file_get_contents('php://input'), true);
+            $input = file_get_contents('php://input');
+            if ($input === false) {
+                http_response_code(400);
+                return [
+                    'status' => 'error',
+                    'message' => 'Failed to read input',
+                ];
+            }
+            
+            $data = json_decode($input, true);
             
             if (!isset($data['tags']) || !is_array($data['tags'])) {
                 http_response_code(400);
@@ -221,6 +278,9 @@ final class TaskController
         }
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function removeTag(int $id, string $tag): array
     {
         try {

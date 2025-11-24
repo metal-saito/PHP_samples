@@ -44,6 +44,9 @@ final class Task implements JsonSerializable
         self::STATUS_CANCELLED => [self::STATUS_PENDING],
     ];
 
+    /**
+     * @param array<string> $tags
+     */
     public function __construct(
         private ?int $id,
         private string $title,
@@ -60,6 +63,9 @@ final class Task implements JsonSerializable
         $this->validateTitle($title);
     }
 
+    /**
+     * @param array<string> $tags
+     */
     public static function create(
         string $title,
         string $description,
@@ -251,6 +257,9 @@ final class Task implements JsonSerializable
         return $this->updatedAt;
     }
 
+    /**
+     * @return array<string>
+     */
     public function getTags(): array
     {
         return $this->tags;
@@ -271,6 +280,9 @@ final class Task implements JsonSerializable
         );
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function jsonSerialize(): array
     {
         return [
