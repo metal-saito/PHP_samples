@@ -48,6 +48,11 @@ final class TimeSlot
         return $this->endsAt;
     }
 
+    public function dayKey(): string
+    {
+        return $this->startsAt->format('Y-m-d');
+    }
+
     public function toArray(): array
     {
         return [

@@ -9,18 +9,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-    
+        coverage: none
+        extensions: mbstring, intl, pcntl
+        tools: composer:v2
+
+    - name: Validate composer.json
+      run: composer validate --strict
+
     - name: Install dependencies
       run: composer install --no-interaction --prefer-dist
-    
-    - name: Run tests
-      run: vendor/bin/phpunit
+
+    - name: Run quality checks
+      run: composer quality
 

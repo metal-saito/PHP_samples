@@ -16,6 +16,11 @@ final class InMemoryReservationRepository implements ReservationRepositoryInterf
         $this->items[$reservation->id()] = $reservation;
     }
 
+    public function findById(string $id): ?Reservation
+    {
+        return $this->items[$id] ?? null;
+    }
+
     public function findOverlapping(string $resourceName, TimeSlot $timeSlot): array
     {
         return array_values(
