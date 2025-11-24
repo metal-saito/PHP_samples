@@ -16,16 +16,15 @@ final class TaskRepositoryTest extends TestCase
     private PDO $pdo;
     private TaskRepository $repository;
 
+    /**
+     * 各テストの前に実行
+     * インメモリSQLiteデータベースを作成し、スキーマを初期化
+     */
     protected function setUp(): void
     {
         $this->pdo = new PDO('sqlite::memory:');
         $this->repository = new TaskRepository($this->pdo);
         $this->repository->createSchema();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->pdo = null;
     }
 
     public function testSaveAndFindTask(): void

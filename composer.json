@@ -2,6 +2,7 @@
     "name": "php-advanced/task-management-api",
     "description": "Advanced Task Management REST API with modern PHP practices",
     "type": "project",
+    "license": "MIT",
     "require": {
         "php": ">=8.1",
         "ext-json": "*",
@@ -28,6 +29,10 @@
     },
     "scripts": {
         "test": "phpunit",
-        "analyse": "phpstan analyse src tests --level=8"
+        "analyse": "phpstan analyse src tests --level=8",
+        "quality": [
+            "@test",
+            "@analyse"
+        ]
     }
 }
