@@ -11,6 +11,9 @@ use DateTimeImmutable;
  */
 final class CreateTaskDTO
 {
+    /**
+     * @param array<string>|null $tags
+     */
     public function __construct(
         public readonly string $title,
         public readonly string $description,
@@ -20,6 +23,9 @@ final class CreateTaskDTO
     ) {
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         $dueDate = null;

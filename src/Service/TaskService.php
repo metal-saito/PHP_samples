@@ -60,6 +60,9 @@ final class TaskService
         return $this->repository->save($task);
     }
 
+    /**
+     * @param array<string> $tags
+     */
     public function addTagsToTask(int $id, array $tags): Task
     {
         $task = $this->repository->findById($id);
@@ -84,21 +87,33 @@ final class TaskService
         return $this->repository->findById($id);
     }
 
+    /**
+     * @return array<Task>
+     */
     public function getAllTasks(int $limit = 100, int $offset = 0): array
     {
         return $this->repository->findAll($limit, $offset);
     }
 
+    /**
+     * @return array<Task>
+     */
     public function getTasksByStatus(string $status): array
     {
         return $this->repository->findByStatus($status);
     }
 
+    /**
+     * @return array<Task>
+     */
     public function getTasksByTag(string $tag): array
     {
         return $this->repository->findByTag($tag);
     }
 
+    /**
+     * @return array<Task>
+     */
     public function getOverdueTasks(): array
     {
         return $this->repository->findOverdue();
@@ -109,6 +124,9 @@ final class TaskService
         $this->repository->delete($id);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getStatistics(): array
     {
         $allTasks = $this->repository->findAll(10000);

@@ -56,7 +56,9 @@ final class TaskRepositoryTest extends TestCase
         $updated = $saved->updateTitle('Updated Title');
         $this->repository->save($updated);
 
-        $found = $this->repository->findById($saved->getId());
+        $id = $saved->getId();
+        $this->assertNotNull($id);
+        $found = $this->repository->findById($id);
         $this->assertEquals('Updated Title', $found->getTitle());
     }
 
@@ -65,10 +67,12 @@ final class TaskRepositoryTest extends TestCase
         $task = Task::create('To Delete', 'Description');
         $saved = $this->repository->save($task);
 
-        $this->repository->delete($saved->getId());
+        $id = $saved->getId();
+        $this->assertNotNull($id);
+        $this->repository->delete($id);
 
         $this->expectException(NotFoundException::class);
-        $this->repository->findById($saved->getId());
+        $this->repository->findById($id);
     }
 
     public function testFindAll(): void

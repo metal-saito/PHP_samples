@@ -63,6 +63,9 @@ final class RateLimitMiddleware
         return $next();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function loadLimits(): array
     {
         if (!file_exists($this->storageFile)) {
@@ -73,6 +76,9 @@ final class RateLimitMiddleware
         return $content ? json_decode($content, true) : [];
     }
 
+    /**
+     * @param array<string, mixed> $limits
+     */
     private function saveLimits(array $limits): void
     {
         file_put_contents($this->storageFile, json_encode($limits));
